@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
      <TargetFramework>netcoreapp2.0</TargetFramework>
     <AssemblyName>Dolittle.Runtime.Events.SqlLite.Specs</AssemblyName>
     <RootNamespace>Dolittle.Runtime.Events.SqlLite.Specs</RootNamespace>
   </PropertyGroup>
+  <Import Project="../Build/MSBuild/specs.props"></Import>
   <ItemGroup>
     <Compile Include="./Specs/**/*.cs" Exclude="./Specs/obj/**/*.cs;./Specs/bin/**/*.cs"/>
   </ItemGroup>  
