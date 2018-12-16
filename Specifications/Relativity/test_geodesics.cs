@@ -1,7 +1,7 @@
 using Dolittle.Runtime.Events.Relativity;
-using Dolittle.Runtime.Events.SqlLite.Specs;
+using Dolittle.Runtime.Events.Sqlite.Specs;
 
-namespace Dolittle.Runtime.Events.SqlLite.Relativity.Specs
+namespace Dolittle.Runtime.Events.Sqlite.Relativity.Specs
 {
     internal class test_geodesics : Geodesics
     {

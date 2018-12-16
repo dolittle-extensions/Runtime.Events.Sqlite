@@ -1,4 +1,4 @@
-# Runtime.Events.SqlLite
+# Runtime.Events.Sqlite
 
 
 ## Cloning
@@ -36,13 +36,13 @@ $ Build\build.sh
 
 | Platform | Production   | From CI  |
 | ------- | ------- | ------ |
-| Runtime.Events.SqlLite | [![NuGet](https://img.shields.io/nuget/v/dolittle.svg)](https://www.nuget.org/packages?q=dolittle) | [![MyGet](https://img.shields.io/myget/dolittle/vpre/dolittle.svg)](https://www.myget.org/gallery/dolittle) |
+| Runtime.Events.Sqlite | [![NuGet](https://img.shields.io/nuget/v/dolittle.svg)](https://www.nuget.org/packages?q=dolittle) | [![MyGet](https://img.shields.io/myget/dolittle/vpre/dolittle.svg)](https://www.myget.org/gallery/dolittle) |
 
 ## Build Status
 
 | Project | AppVeyor | 
 | -------- | ------ |
-| Runtime.Events.SqlLite | [![Build status](https://ci.appveyor.com/api/projects/status/kjtjm9bol8xl9c62?svg=true)](https://ci.appveyor.com/project/Dolittle/runtime-events-azure) |
+| Runtime.Events.Sqlite | [![Build status](https://ci.appveyor.com/api/projects/status/kjtjm9bol8xl9c62?svg=true)](https://ci.appveyor.com/project/Dolittle/runtime-events-azure) |
 
 ## Visual Studio
 

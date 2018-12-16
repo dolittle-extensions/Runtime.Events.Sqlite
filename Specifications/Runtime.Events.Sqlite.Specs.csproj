@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
      <TargetFramework>netcoreapp2.0</TargetFramework>
-    <AssemblyName>Dolittle.Runtime.Events.SqlLite.Specs</AssemblyName>
-    <RootNamespace>Dolittle.Runtime.Events.SqlLite.Specs</RootNamespace>
+    <AssemblyName>Dolittle.Runtime.Events.Sqlite.Specs</AssemblyName>
+    <RootNamespace>Dolittle.Runtime.Events.Sqlite.Specs</RootNamespace>
   </PropertyGroup>
   <Import Project="../Build/MSBuild/specs.props"></Import>
   <ItemGroup>
     <Compile Include="./Specs/**/*.cs" Exclude="./Specs/obj/**/*.cs;./Specs/bin/**/*.cs"/>
   </ItemGroup>  
   <ItemGroup>
-    <ProjectReference Include="../Source/Runtime.Events.SqlLite.csproj" />
+    <ProjectReference Include="../Source/Runtime.Events.Sqlite.csproj" />
   </ItemGroup>
 </Project>

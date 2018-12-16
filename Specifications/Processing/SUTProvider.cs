@@ -1,9 +1,9 @@
-namespace Dolittle.Runtime.Events.Processing.SqlLite.Specs
+namespace Dolittle.Runtime.Events.Processing.Sqlite.Specs
 {
     using Dolittle.Runtime.Events.Processing;
-    using Dolittle.Runtime.Events.SqlLite.Processing;
+    using Dolittle.Runtime.Events.Sqlite.Processing;
     using Dolittle.Runtime.Events.Processing.InMemory.Specs;
-    using Dolittle.Runtime.Events.SqlLite.Specs;
+    using Dolittle.Runtime.Events.Sqlite.Specs;
 
     public class SUTProvider : IProvideTheOffsetRepository
     {

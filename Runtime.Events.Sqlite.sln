@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26124.0
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runtime.Events.SqlLite", "Source\Runtime.Events.SqlLite.csproj", "{AEB16880-AA72-49D0-94A6-579AC2239774}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runtime.Events.Sqlite", "Source\Runtime.Events.Sqlite.csproj", "{AEB16880-AA72-49D0-94A6-579AC2239774}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runtime.Events.SqlLite.Specs", "Specifications\Runtime.Events.SqlLite.Specs.csproj", "{7FBC7516-6445-44D9-803D-67AE1EDBC27A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Runtime.Events.Sqlite.Specs", "Specifications\Runtime.Events.Sqlite.Specs.csproj", "{7FBC7516-6445-44D9-803D-67AE1EDBC27A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
