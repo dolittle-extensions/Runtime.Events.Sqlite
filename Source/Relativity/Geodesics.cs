@@ -3,7 +3,7 @@
  *  Licensed under the MIT License. See LICENSE in the project root for license information.
  * --------------------------------------------------------------------------------------------*/
 
-namespace Dolittle.Runtime.Events.SqlLite.Relativity
+namespace Dolittle.Runtime.Events.Sqlite.Relativity
 {
     using System;
     using System.Collections.Concurrent;
@@ -17,7 +17,7 @@ namespace Dolittle.Runtime.Events.SqlLite.Relativity
     using Dolittle.Serialization.Json;
 
     /// <summary>
-    /// An SqlLite implementation of <see cref="IGeodesics" />
+    /// An Sqlite implementation of <see cref="IGeodesics" />
     /// </summary>
     public class Geodesics : IGeodesics
     {

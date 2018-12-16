@@ -7,10 +7,10 @@ using Dolittle.Logging;
 using Dolittle.Runtime.Events.Processing;
 using Dolittle.Runtime.Events.Store;
 
-namespace Dolittle.Runtime.Events.SqlLite.Processing
+namespace Dolittle.Runtime.Events.Sqlite.Processing
 {
     /// <summary>
-    /// A SqlLite implementation of <see cref="IEventProcessorOffsetRepository" />
+    /// A Sqlite implementation of <see cref="IEventProcessorOffsetRepository" />
     /// </summary>
     public class EventProcessorOffsetRepository : IEventProcessorOffsetRepository
     {
