@@ -1,29 +1,47 @@
+using System.Collections.Generic;
+using System.Linq;
 using Dolittle.Artifacts;
+using Dolittle.Lifecycle;
 using Dolittle.Logging;
+using Dolittle.Runtime.Events.Sqlite.Persistence;
 using Dolittle.Runtime.Events.Store;
+using Dolittle.Serialization.Json;
 
-namespace Dolittle.Runtime.Events.SqlLite.Store
+namespace Dolittle.Runtime.Events.Sqlite.Store
 {
     /// <summary>
-    /// A SqlLite implementation of <see cref="Dolittle.Runtime.Events.Store.IEventStore" />
+    /// A Sqlite implementation of <see cref="Dolittle.Runtime.Events.Store.IEventStore" />
     /// </summary>
+    [SingletonPerTenant]
     public class EventStore : IEventStore
     {
+        private readonly Database _database;
         private readonly ILogger _logger;
+        private readonly ISerializer _serializer;
 
         /// <summary>
         /// Instantiates an instance of <see cref="EventStore"/>
         /// </summary>
+        /// <param name="database">Database configuration</param>
+        /// <param name="serializer"></param>
         /// <param name="logger">An instance of <see cref="ILogger" /></param>
-        public EventStore(ILogger logger)
+        public EventStore(Database database, ISerializer serializer, ILogger logger)
         {
+            _database = database;
             _logger = logger;
+            _serializer = serializer;
         }
 
         /// <inheritdoc />
         public CommittedEventStream Commit(UncommittedEventStream uncommittedEvents)
         {
-            throw new System.NotImplementedException();
+            var commit = Persistence.Commit.From(uncommittedEvents, _serializer);
+            using (var es = _database.GetContext())
+            {
+                es.Commits.Add(commit);
+                es.SaveChanges();
+                return commit.ToCommittedEventStream(_serializer);
+            }
         }
 
         /// <inheritdoc />
@@ -56,23 +74,39 @@ namespace Dolittle.Runtime.Events.SqlLite.Store
             throw new System.NotImplementedException();
         }
 
+        const string GET_CURRENT_VERSION = "SELECT c.CommitNumber, c.Sequence FROM Commits c where c.EventSourceId=@eventSource and c.EventSourceArtifact = @artifact order by c.CommitNumber desc LIMIT 1";
+
         /// <inheritdoc />
         public EventSourceVersion GetCurrentVersionFor(EventSourceKey eventSource)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                var result = es.FromSql(GET_CURRENT_VERSION,new Dictionary<string,object>(){
+                    { "@eventSource",eventSource.Id.Value },
+                    { "@artifact",eventSource.Artifact.Value }
+                }).FirstOrDefault();
+                if(result != null)
+                {
+                    return new EventSourceVersion((ulong)result.commit,(uint)result.sequence);
+                } 
+                else 
+                {
+                    return EventSourceVersion.NoVersion;
+                }
+            }
         }
 
         /// <inheritdoc />
         public EventSourceVersion GetNextVersionFor(EventSourceKey eventSource)
         {
-            throw new System.NotImplementedException();
+            return GetCurrentVersionFor(eventSource).NextCommit();
         }
 
         #region IDisposable Support
         /// <summary>
         /// Detects redundant calls to Dispose
         /// </summary>
-        protected bool disposedValue = false; 
+        protected bool disposedValue = false;
 
         /// <inheritdoc />
         protected virtual void Dispose(bool disposing)
@@ -108,5 +142,39 @@ namespace Dolittle.Runtime.Events.SqlLite.Store
         }
         #endregion
 
+        Persistence.Commit ToCommit(UncommittedEventStream uncommittedEvents)
+        {
+            var events = uncommittedEvents.Events.Select(e => 
+                new Persistence.Event 
+                {
+                    Id = e.Id.Value,
+                    CorrelationId = e.Metadata.CorrelationId.Value,
+                    EventArtifact =  e.Metadata.Artifact.Id.Value,
+                    Generation =  e.Metadata.Artifact.Generation.Value,
+                    EventSourceArtifact =  uncommittedEvents.Source.Artifact.Value,
+                    EventSourceId =  e.Metadata.EventSourceId.Value,
+                    Commit =  e.Metadata.VersionedEventSource.Version.Commit,
+                    Sequence =  e.Metadata.VersionedEventSource.Version.Sequence,
+                    Occurred =  e.Metadata.Occurred.ToUnixTimeMilliseconds(),
+                    OriginalContext =  _serializer.ToJson(Persistence.OriginalContext.From(e.Metadata.OriginalContext)),
+                    EventData = PropertyBagSerializer.Serialize(e.Event,_serializer)
+                }
+            ).ToList();
+
+            var commit = new Commit
+            {
+                Id = 0 ,
+                CorrelationId = uncommittedEvents.CorrelationId.Value,
+                CommitId = uncommittedEvents.Id.Value,
+                Timestamp = uncommittedEvents.Timestamp.ToUnixTimeMilliseconds(),
+                EventSourceId = uncommittedEvents.Source.EventSource.Value,
+                EventSourceArtifact = uncommittedEvents.Source.Artifact.Value,
+                CommitNumber = uncommittedEvents.Source.Version.Commit,
+                Sequence = uncommittedEvents.Source.Version.Sequence,
+                Events = events 
+            };
+  
+            return commit;
+        }
     }
 }
