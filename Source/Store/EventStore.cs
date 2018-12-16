@@ -56,16 +56,29 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
             throw new System.NotImplementedException();
         }
 
+
+        const string GET_EVENTS_BY_TYPE = "SELECT * FROM Events e WHERE e.EventArtifact=@artifact ORDER BY e.CommitId ASC";
         /// <inheritdoc />
         public SingleEventTypeEventStream FetchAllEventsOfType(ArtifactId eventType)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                return GetStreamFromEvents(es.Events.Where(e => e.EventArtifact == eventType).OrderBy(e => e.CommitId));
+            }
+        }
+
+        SingleEventTypeEventStream GetStreamFromEvents(IEnumerable<Persistence.Event> events)
+        {
+            return new SingleEventTypeEventStream(events.Select(e => new CommittedEventEnvelope((ulong)e.CommitId,e.ToEventMetadata(_serializer),e.ToPropertyBag(_serializer))));
         }
 
         /// <inheritdoc />
         public SingleEventTypeEventStream FetchAllEventsOfTypeAfter(ArtifactId eventType, CommitSequenceNumber commit)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                return GetStreamFromEvents(es.Events.Where(e => e.EventArtifact == eventType && e.CommitId > (long)commit.Value).OrderBy(e => e.CommitId));
+            }
         }
 
         /// <inheritdoc />

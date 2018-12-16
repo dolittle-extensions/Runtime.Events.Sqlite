@@ -25,6 +25,11 @@ namespace Dolittle.Runtime.Events.Sqlite
         /// <value></value>
 		public DbSet<Dolittle.Runtime.Events.Sqlite.Persistence.Commit> Commits { get; set; }
         /// <summary>
+        /// Collection of Events
+        /// </summary>
+        /// <value></value>
+		public DbSet<Dolittle.Runtime.Events.Sqlite.Persistence.Event> Events { get; set; }
+        /// <summary>
         /// Collection of Offsets
         /// </summary>
         /// <value></value>

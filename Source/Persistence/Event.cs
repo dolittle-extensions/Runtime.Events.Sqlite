@@ -16,11 +16,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Persistence
         /// <summary>
         /// 
         /// </summary>
-        public Guid Id { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
-        public long GlobalCommitNumber { get; set; }        
+        public Guid Id { get; set; }      
         /// <summary>
         /// 
         /// </summary>
@@ -61,6 +57,10 @@ namespace Dolittle.Runtime.Events.Sqlite.Persistence
         /// 
         /// </summary>
         public string EventData { get; set; }  
+        /// <summary>
+        /// The CommitSequenceNumber from the Commit
+        /// </summary>
+        public long CommitId { get; set; }  
 
         /// <summary>
         ///
@@ -71,12 +71,22 @@ namespace Dolittle.Runtime.Events.Sqlite.Persistence
            return new EventEnvelope(ToEventMetadata(serializer),ToPropertyBag(serializer));
         }
 
-        EventMetadata ToEventMetadata(ISerializer serializer)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        public EventMetadata ToEventMetadata(ISerializer serializer)
         {
             return new EventMetadata(this.Id,ToVersionedEventSource(),this.CorrelationId,new Artifact(this.EventArtifact,this.Generation),DateTimeOffset.FromUnixTimeMilliseconds(Occurred), serializer.FromJson<Persistence.OriginalContext>(this.OriginalContext).ToOriginalContext());
         }
 
-        PropertyBag ToPropertyBag(ISerializer serializer)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        public PropertyBag ToPropertyBag(ISerializer serializer)
         {
             return PropertyBagSerializer.From(EventData, serializer);
         }
