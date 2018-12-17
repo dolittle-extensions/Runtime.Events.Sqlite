@@ -31,7 +31,7 @@ namespace Dolittle.Runtime.Events.Sqlite
         {
             return new DbContextOptionsBuilder<EventStoreContext>()
                 .UseSqlite(_connection)
-                .UseLoggerFactory(ConsoleLoggerFactory)
+                //.UseLoggerFactory(ConsoleLoggerFactory)
                 .Options;
         }
 

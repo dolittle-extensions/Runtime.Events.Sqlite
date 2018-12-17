@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dolittle.Artifacts;
@@ -47,13 +48,19 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         /// <inheritdoc />
         public Commits Fetch(EventSourceKey eventSourceKey)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                return BuildCommits(es.Commits.Where(c => c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+            }
         }
 
         /// <inheritdoc />
         public Commits FetchAllCommitsAfter(CommitSequenceNumber commit)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                return BuildCommits(es.Commits.Where(c => c.Id > (long)commit.Value).OrderBy(c => c.Id));
+            }
         }
 
 
@@ -65,11 +72,6 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
             {
                 return GetStreamFromEvents(es.Events.Where(e => e.EventArtifact == eventType).OrderBy(e => e.CommitId));
             }
-        }
-
-        SingleEventTypeEventStream GetStreamFromEvents(IEnumerable<Persistence.Event> events)
-        {
-            return new SingleEventTypeEventStream(events.Select(e => new CommittedEventEnvelope((ulong)e.CommitId,e.ToEventMetadata(_serializer),e.ToPropertyBag(_serializer))));
         }
 
         /// <inheritdoc />
@@ -84,7 +86,10 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         /// <inheritdoc />
         public Commits FetchFrom(EventSourceKey eventSourceKey, CommitVersion commitVersion)
         {
-            throw new System.NotImplementedException();
+            using (var es = _database.GetContext())
+            {
+                return BuildCommits(es.Commits.Where(c => c.Id > (long)commitVersion.Value && c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+            }
         }
 
         const string GET_CURRENT_VERSION = "SELECT c.CommitNumber, c.Sequence FROM Commits c where c.EventSourceId=@eventSource and c.EventSourceArtifact = @artifact order by c.CommitNumber desc LIMIT 1";
@@ -100,7 +105,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
                 }).FirstOrDefault();
                 if(result != null)
                 {
-                    return new EventSourceVersion((ulong)result.commit,(uint)result.sequence);
+                    return new EventSourceVersion((ulong)result.CommitNumber,(uint)result.Sequence);
                 } 
                 else 
                 {
@@ -189,5 +194,15 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
   
             return commit;
         }
+
+        SingleEventTypeEventStream GetStreamFromEvents(IEnumerable<Persistence.Event> events)
+        {
+            return new SingleEventTypeEventStream(events.Select(e => new CommittedEventEnvelope((ulong)e.CommitId,e.ToEventMetadata(_serializer),e.ToPropertyBag(_serializer))));
+        }
+
+        Commits BuildCommits(IEnumerable<Persistence.Commit> commits)
+        {
+            return new Commits(commits.Select(c => c.ToCommittedEventStream(_serializer)).ToList());
+        }        
     }
 }
