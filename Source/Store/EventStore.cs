@@ -7,6 +7,7 @@ using Dolittle.Logging;
 using Dolittle.Runtime.Events.Sqlite.Persistence;
 using Dolittle.Runtime.Events.Store;
 using Dolittle.Serialization.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dolittle.Runtime.Events.Sqlite.Store
 {
@@ -50,7 +51,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         {
             using (var es = _database.GetContext())
             {
-                return BuildCommits(es.Commits.Where(c => c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
             }
         }
 
@@ -59,7 +60,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         {
             using (var es = _database.GetContext())
             {
-                return BuildCommits(es.Commits.Where(c => c.Id > (long)commit.Value).OrderBy(c => c.Id));
+                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.Id > (long)commit.Value).OrderBy(c => c.Id));
             }
         }
 
@@ -88,7 +89,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         {
             using (var es = _database.GetContext())
             {
-                return BuildCommits(es.Commits.Where(c => c.Id > (long)commitVersion.Value && c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.Id >= (long)commitVersion.Value && c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
             }
         }
 
