@@ -7,7 +7,7 @@ namespace Dolittle.Runtime.Events.Processing.Sqlite.Specs
     {
         private readonly a_database _database;
 
-        public test_event_processor_offset_repository(a_database db): base(given.a_logger())
+        public test_event_processor_offset_repository(a_database db): base(db,given.a_logger())
         {
             _database = db;
         }

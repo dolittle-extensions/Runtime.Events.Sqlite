@@ -15,7 +15,7 @@ namespace Dolittle.Runtime.Events.Sqlite
     [SingletonPerTenant]  
     public class Database : IDisposable
     {
-        static readonly LoggerFactory ConsoleLoggerFactory = new LoggerFactory(new[] {new ConsoleLoggerProvider((_, __) => true, true)});
+        //static readonly LoggerFactory ConsoleLoggerFactory = new LoggerFactory(new[] {new ConsoleLoggerProvider((_, __) => true, true)});
         //string _db;
         DbConnection _connection;
 
