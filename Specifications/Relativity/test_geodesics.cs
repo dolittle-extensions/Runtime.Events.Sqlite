@@ -7,7 +7,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Relativity.Specs
     {
         private a_database _database;
 
-        public test_geodesics(a_database db) : base(given.a_logger())
+        public test_geodesics(a_database db) : base(db,given.a_logger())
         {
             _database = db;
         }
