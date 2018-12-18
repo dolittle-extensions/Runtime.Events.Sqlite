@@ -40,18 +40,51 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
             var commit = Persistence.Commit.From(uncommittedEvents, _serializer);
             using (var es = _database.GetContext())
             {
-                es.Commits.Add(commit);
-                es.SaveChanges();
-                return commit.ToCommittedEventStream(_serializer);
+                try
+                {
+                    es.Commits.Add(commit);
+                    es.SaveChanges();
+                    return commit.ToCommittedEventStream(_serializer);
+                }
+                catch(DbUpdateException ex)
+                {
+                    if(IsADuplicate(ex))
+                    {
+                        throw new CommitIsADuplicate("Commit is a duplicate",ex);
+                    }
+                    if(IsConcurrencyException(ex))
+                    {
+                        throw new EventSourceConcurrencyConflict(ex.Message,ex);
+                    }
+                    throw new EventStorePersistenceError("Unknown error", ex);
+                }
             }
         }
 
+
+        bool IsADuplicate(DbUpdateException ex)
+        {
+            dynamic inner = ex?.InnerException;
+            if(inner == null)
+                return false;
+
+            return inner.Message.Contains("CommitId is duplicate");
+        }
+
+        bool IsConcurrencyException(DbUpdateException ex)
+        {
+            dynamic inner = ex?.InnerException;
+            if(inner == null)
+                return false;
+
+            return inner.SqliteExtendedErrorCode == 2067 && inner.Message.Contains("EventSourceId") || inner.Message.Contains("Version is older");
+        }
         /// <inheritdoc />
         public Commits Fetch(EventSourceKey eventSourceKey)
         {
             using (var es = _database.GetContext())
             {
-                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.EventSourceId == eventSourceKey.Id.Value && c.EventSourceArtifact == eventSourceKey.Artifact.Value).OrderBy(c => c.Id));
             }
         }
 
@@ -89,7 +122,7 @@ namespace Dolittle.Runtime.Events.Sqlite.Store
         {
             using (var es = _database.GetContext())
             {
-                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.Id >= (long)commitVersion.Value && c.EventSourceId == eventSourceKey.Id.Value).OrderBy(c => c.Id));
+                return BuildCommits(es.Commits.Include(c => c.Events).Where(c => c.Id >= (long)commitVersion.Value && c.EventSourceId == eventSourceKey.Id.Value && c.EventSourceArtifact == eventSourceKey.Artifact.Value).OrderBy(c => c.Id));
             }
         }
 

@@ -62,10 +62,37 @@ namespace Dolittle.Runtime.Events.Sqlite
                 using (var context = new EventStoreContext(options))
                 {
                     context.Database.EnsureCreated();
+                    context.Database.ExecuteSqlCommand(BEFORE_TRIGGER);
+                    context.Database.ExecuteSqlCommand(AFTER_TRIGGER);
                 }
             }
 
             return new EventStoreContext(CreateOptions());
         }
+
+//This needs to go, we don't need the distinction between Duplicate and Concurrency Issue
+    const string BEFORE_TRIGGER = @"
+CREATE TRIGGER IF NOT EXISTS insert_commit_id_check 
+   BEFORE INSERT
+   ON Commits
+BEGIN
+    SELECT
+        CASE
+            WHEN (SELECT Id FROM Commits WHERE CommitId == NEW.CommitId) IS NOT NULL THEN
+            RAISE (FAIL,'CommitId is duplicate')
+    END;
+END;";   
+
+    const string AFTER_TRIGGER = @"
+CREATE TRIGGER IF NOT EXISTS insert_commit_version_check 
+   AFTER INSERT
+   ON Commits
+BEGIN
+    SELECT
+        CASE
+            WHEN (SELECT Id FROM Commits WHERE EventSourceId == NEW.EventSourceId AND EventSourceArtifact == NEW.EventSourceArtifact AND CommitNumber > NEW.CommitNumber) IS NOT NULL THEN
+            RAISE (FAIL,'Version is older')
+    END;
+END;";        
     }
 }

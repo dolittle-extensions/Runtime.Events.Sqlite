@@ -83,8 +83,8 @@ namespace Dolittle.Runtime.Events.Sqlite
             {
                 _.HasKey(c => c.Id);
                 _.Property(c => c.Id).ValueGeneratedOnAdd();
-                _.HasAlternateKey(c => c.CommitId);
-                _.HasAlternateKey(c => new { c.EventSourceId, c.CommitNumber, c.Sequence });
+                _.HasAlternateKey(c => c.CommitId).HasName("Unique_CommitId");
+                _.HasAlternateKey(c => new { c.EventSourceId, c.EventSourceArtifact, c.CommitNumber, c.Sequence }).HasName("Unique_EventSourceCommit");
                 _.Property<Guid>(c => c.CorrelationId);
                 _.Property<long>(c => c.Timestamp);
                 _.Property<Guid>(c => c.EventSourceArtifact);
@@ -108,6 +108,7 @@ namespace Dolittle.Runtime.Events.Sqlite
                 _.Property<uint>(e => e.Sequence);
                 _.Property<string>( e => e.OriginalContext);
                 _.Property<dynamic>(e => e.EventData);
+                _.HasIndex(e => e.EventArtifact);
             });
         }
 
